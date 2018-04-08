@@ -4,6 +4,7 @@ import path from 'path';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
 import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
+import cors from 'cors';
 
 import models from '../models/models';
 
@@ -19,6 +20,7 @@ const schema = makeExecutableSchema({
 });
 
 const app = express();
+app.use(cors('http://localhost:8080'));
 
 const graphqlEndpoint = '/graphql';
 
@@ -28,13 +30,16 @@ app.use(
   graphqlExpress({
     schema,
     context: {
-      models
+      models,
+      user: {
+        id: 1
+      }
     }
   }));
 app.use('/graphiql', graphiqlExpress({ endpointURL: graphqlEndpoint }));
 
 // pass { force: true } as sync arg to clear db
 
-models.sequelize.sync().then(() => {
+models.sequelize.sync({}).then(() => {
   app.listen(3000);
 });
