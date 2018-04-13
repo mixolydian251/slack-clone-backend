@@ -1,19 +1,28 @@
+import { formatErrors } from "../utils/formatErrors";
+import { requiresAuth } from "../authentication/permissions";
+
 export default {
   Query: {
     allTeams: (parent, args, { models }) => models.Team.findAll(),
   },
   Mutation: {
-    createTeam: async (parent, args, { models, user }) => {
+    createTeam: requiresAuth.createResolver( async (parent, args, { models, user }) => {
       try {
-        await models.Team.create({
+        const team = await models.Team.create({
           ...args,
           owner: user.id
         });
-        return true;
+        return {
+          ok: true,
+          team
+        };
       } catch (error) {
         console.log(error);
-        return false;
+        return {
+          ok: false,
+          errors: formatErrors(error, models)
+        }
       }
-    }
+    })
   }
 }

@@ -9,9 +9,15 @@ const team = `
   type Query {
     allTeams: [Team!]!
   }
+  
+  type CreateTeamResponse {
+    ok: Boolean!
+    team: Team
+    errors: [Error!]
+  }
  
   type Mutation {
-   createTeam(name: String!): Boolean!
+   createTeam(name: String!): CreateTeamResponse!
   }
 `;
 

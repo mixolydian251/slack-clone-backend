@@ -1,3 +1,6 @@
+import bcrypt from 'bcrypt'
+const SALT_ROUNDS = 10;
+
 export default (sequelize, DataTypes) => {
  const User = sequelize.define("user", {
    username: {
@@ -15,7 +18,6 @@ export default (sequelize, DataTypes) => {
          args: [3, 20],
          msg: "Username must be between 3 and 20 characters."
        },
-
      }
    },
    email: {
@@ -33,6 +35,19 @@ export default (sequelize, DataTypes) => {
    },
    password: {
      type: DataTypes.STRING,
+     validate: {
+       len: {
+         args: [6, 50],
+         msg: "Password must be between 6 to 50 characters long"
+       }
+     }
+   }
+ }, {
+   hooks: {
+     afterValidate: async (user) => {
+       user.password = await bcrypt.hash(user.password, SALT_ROUNDS);
+       return user;
+     }
    }
  });
 
